@@ -5,7 +5,7 @@ require(sidrar)
 require(geobr)
 
 
-# mapa
+# mapa: Carregando mapa
 
 rondonia_map <- read_municipality(code_muni=11, year=2010) 
 
@@ -73,8 +73,6 @@ q2 <- aux_map2 %>%
   mutate(`Área média por propriedade` = round(`Área Total` / 
                                                 `Número de estabelecimentos agropecuários`, 2))
 
-# write.csv(q2, file = "mulheres_area_estabelecimento.csv")
-
 rondonia_map %>% 
   left_join(q2) %>% 
   rename("Área média dos estabelecimentos (ha)" = 
@@ -90,7 +88,7 @@ rondonia_map %>%
   theme_minimal()
 
 
-### fig 3
+### Área média mulheres AF
 
 q3 <- aux_map2 %>% 
   filter(`Sexo do produtor` != "Total") %>% 
@@ -109,9 +107,6 @@ q3 <- aux_map2 %>%
                                                 `Número de estabelecimentos agropecuários`, 2))
 
 
-# write.csv(q3, "data/mulheres_estabelecimentos_area_AF.csv")
-
-
 rondonia_map %>% 
   left_join(q3) %>% 
   rename("Área média dos estabelecimentos (ha)" = 
@@ -126,7 +121,7 @@ rondonia_map %>%
   scale_fill_gradient(low = "white", high = "green") +
   theme_minimal()
 
-#### figura 4
+#### Área Média mulheres que não praticam agricultura familiar
 
 q4 <- aux_map2 %>% 
   filter(`Sexo do produtor` != "Total") %>% 
@@ -199,7 +194,7 @@ rondonia_map %>%
   theme_minimal()
 
 
-### q6
+### Uso agrotóxico por mulheres que praticam Agricultura Familiar
 
 aux_map <- get_sidra(geo="City",
                      x=6851,
@@ -237,11 +232,10 @@ rondonia_map %>%
   theme_minimal()
 
 
-### q7
+### q7 -> Mulheres uso de agrotóxico Agricultura Não Familiar:
 
 q7 <- aux_map %>% 
   filter(`Uso de agrotóxicos` == "Utilizou") %>% 
-  
   # filter(`Condição do produtor em relação às terras (Código)` 
   #        %in% c(46503, 46504)) %>% 
   filter(`Sexo do produtor` != "Total") %>% 
@@ -271,5 +265,5 @@ rondonia_map %>%
   theme_minimal()
 
 
-write.csv(q7, "data/mulheres_estabelecimentos_AGRO_NAF.csv")
+# write.csv(q7, "data/mulheres_estabelecimentos_AGRO_NAF.csv")
 

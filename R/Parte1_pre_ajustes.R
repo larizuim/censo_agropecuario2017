@@ -3,16 +3,25 @@
 require(tidyverse)
 require(sidrar)
 require(geobr)
+
+### para mudar o Estado é só mudar o geo.filter para o de interesse.
+
+### Neste código há rascunhos de possíveis tabelas para o artigo:
+
 ### BLOCO 1
 
 {
 
+# Busca informações contidas na tabela 6845 do SIDRA: 
+  
 info_sidra(6845)
 
+# Tabela sobre o número de estabelecimentos agropecuários: 
+  
 aux <- get_sidra(geo="State",x=6845,geo.filter = 11,
           variable=183,classific= c("c12564", "c218"))
 
-# Questão 1
+# Questão 1: Número de estabelecimentos por sexo:
 
 q1 <- aux %>% 
   filter(`Condição do produtor em relação às terras (Código)` 
@@ -49,6 +58,8 @@ q1_map <- aux_map %>%
 rondonia_map <- read_municipality(code_muni=11, year=2010) %>% 
   left_join(q1_map)
 
+# Mapa com porcentagem de mulheres donas de estabelecimentos por municipio de RO
+
 
 rondonia_map %>% 
   ggplot() +
@@ -60,7 +71,7 @@ rondonia_map %>%
   theme_minimal()
 
 
-# Questão 2
+# Questão 2 : Estabelecimentos - Agricultura Familiar - Sexo
 
 aux2 <- get_sidra(geo="State",x=6845, geo.filter = 11,
                        variable=183,
@@ -89,6 +100,7 @@ colnames(q2) <- q2_names
 
 q2
 
+# Mapa para os municípios de RO: 
 
 aux_map <- get_sidra(geo="City",
                      x=6845,
@@ -129,7 +141,7 @@ rondonia_map %>%
 
 
 
-## Questão 3 (CONTINUAR DAQUI)
+## Questão 3 : Práticas agrícolas por sexo considerando agricultura familiar: 
 
 aux3 <- get_sidra(geo="State", geo.filter = 11, 
                   x=6845,
@@ -160,8 +172,6 @@ q3_mulheres <- q3 %>%
 q3_mulheres_porcentagem <- q3_mulheres %>% 
   mutate_if(is.numeric, funs(100*round(./sum(., na.rm = TRUE), 3)))
 
-
-
 q3_homens <- q3 %>% 
   filter(`Sexo do produtor` == "Homens") %>% 
   pivot_wider(names_from = Tipologia, 
@@ -171,7 +181,6 @@ q3_homens <- q3 %>%
 q3_homens_porcentagem <- q3_homens %>% 
   mutate_if(is.numeric, funs(100*round(./sum(., na.rm = TRUE), 3)))
 
-#### 
 
 q3_mulheres_AF <- q3_mulheres_porcentagem %>% 
   select(`Sexo do produtor`, `Agricultura familiar - sim`, 
@@ -191,7 +200,7 @@ q3_AF %>%
 }
 
 
-### BLOCO 2
+### BLOCO 2: Relações com o uso de agrotóxico:
 
 info_sidra(6851)
 
@@ -199,7 +208,7 @@ info_sidra(6851)
 aux4 <- get_sidra(geo="State",x=6851,
                   geo.filter = 11,
                  variable=183,
-                 classific= c("c12564", "c12521", "c829"))
+                 classific= c("c12564", "c12521", "c829", "c218"))
 
 # Questão 1
 
@@ -213,6 +222,7 @@ q4 <- aux4 %>%
   filter(`Uso de agrotóxicos` != "Total") %>% 
   filter(`Uso de agrotóxicos` %in% c("Utilizou", "Não utilizou")) 
 
+## Uso de agrotóxico e sexo: 
 
 q4 %>% 
   group_by(`Sexo do produtor`, `Uso de agrotóxicos`) %>% 
@@ -225,6 +235,8 @@ q4 %>%
   janitor::adorn_totals() %>% 
   janitor::adorn_pct_formatting()
   
+
+# Sexo - Uso de Agrotóxico - Agricultura familiar
 
 q4_mulheres <- q4 %>% 
   filter(`Sexo do produtor` == "Mulheres") %>% 
@@ -248,11 +260,10 @@ q4_homens_porcentagem <- q4_homens %>%
 
 q4_AF <- bind_rows(q4_mulheres_porcentagem, 
                    q4_homens_porcentagem) %>% 
-  filter(`Uso de agrotóxicos` == "Utilizou") %>% 
-  select(-c(`Agricultura familiar - não`))
+  filter(`Uso de agrotóxicos` == "Utilizou") 
 
 
-#### Q5
+#### q5: Relação Estabelecimentos agro. e área destes
 
 
 info_sidra(6883)
@@ -263,8 +274,11 @@ aux5 <- get_sidra(geo="State",x=6883,
                   variable= 184,
                   classific= c("c12564", "c222", "c829"))
 
+# Tipos de utilização das terras de interesse: 
+
 codigos_matas <- c(40679, 40680, 40681, 113476)
 
+# Criando tabela com a % de área por tipo de utilização: 
 
 q5_a <- aux5 %>% 
   filter(`Sexo do produtor` != "Total") %>% 
@@ -302,9 +316,6 @@ q5_b <- aux5 %>%
   filter(`Sexo do produtor` != "Não se aplica") %>% 
   select(c(1,2,3,5,7,8,4, 6))
 
-names(q5_b)
-
-###
 q5 <- aux5 %>% 
   filter(`Sexo do produtor` != "Total") %>% 
   filter(`Utilização das terras` != "Total") %>% 
@@ -325,7 +336,7 @@ q5 <- aux5 %>%
 
 q5
 
-####
+#### Relação de áreas de interesse - Área - Estabelecimentos: 
 
 
 aux_join <- get_sidra(geo="State",x=6883,
